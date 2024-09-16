@@ -46,6 +46,24 @@ def limpar_dados():
     conn.close()
     return jsonify({"message": "Dados limpos com sucesso"}), 200
 
+@app.route("/dados-sensores-json")
+def dados_sensores_json():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT timestamp, temperatura, umidade FROM dados_sensores')
+    rows = cursor.fetchall()
+    conn.close()
+    
+    timestamps = [row[0] for row in rows]
+    temperaturas = [row[1] for row in rows]
+    umidades = [row[2] for row in rows]
+    
+    return jsonify({
+        'timestamp': timestamps,
+        'temperatura': temperaturas,
+        'umidade': umidades
+    })
+
 @app.route("/")
 def index():
     conn = sqlite3.connect(DATABASE)
@@ -54,6 +72,10 @@ def index():
     dados = cursor.fetchall()
     conn.close()
     return render_template('index.html', dados=dados)
+
+@app.route("/graficos")
+def graficos():
+    return render_template("grafico.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
